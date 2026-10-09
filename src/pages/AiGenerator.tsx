@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SUBJECTS } from '../data/config';
-import { Question } from '../types';
+import { Question, SubjectId } from '../types';
 
 const OPENROUTER_MODEL = 'openrouter/free'; // Auto-routes to the best available free model on OpenRouter
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '';
@@ -123,7 +123,14 @@ Do NOT wrap the output in markdown code blocks like \`\`\`json. Return ONLY the 
         correctAnswer: q.correctAnswer || 'a',
         explanation: q.explanation || 'No explanation provided.',
         sourceType: 'ai_generated',
-        sourceName: 'AI Gen'
+        sourceName: 'AI Gen',
+        exam: 'general',
+        questionType: 'mcq',
+        hints: [],
+        isOfficial: false,
+        isAiGenerated: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       })) as Question[];
 
       setGeneratedQuestions(validQuestions);
@@ -180,7 +187,7 @@ Do NOT wrap the output in markdown code blocks like \`\`\`json. Return ONLY the 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <div>
               <label className="input-label">Subject</label>
-              <select className="input" value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
+              <select className="input" value={subjectId} onChange={(e) => setSubjectId(e.target.value as SubjectId)}>
                 {SUBJECTS.map(s => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
