@@ -25,6 +25,7 @@ export default function Practice() {
     difficulty?: Difficulty | 'mixed';
     timed?: boolean;
     mode?: string;
+    customQuestions?: Question[];
   } | null;
 
   const [state, setState] = useState<PracticeState | null>(null);
@@ -35,6 +36,36 @@ export default function Practice() {
   const [encouragement, setEncouragement] = useState('');
   const timerRef = useRef<number | null>(null);
 
+  // Swipe gesture refs
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.changedTouches[0].screenX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].screenX;
+    handleSwipe();
+  };
+
+  const handleSwipe = () => {
+    if (!state) return;
+    const swipeDistance = touchEndX.current - touchStartX.current;
+    if (swipeDistance > 75) {
+      // Swipe Right -> Previous
+      handlePrev();
+    } else if (swipeDistance < -75) {
+      // Swipe Left -> Next
+      // Only allow swipe to next if current question is revealed (checked)
+      const q = state.questions[state.currentIndex];
+      const isRevealed = state.answers[q.id]?.isRevealed;
+      if (isRevealed) {
+        handleNext();
+      }
+    }
+  };
+
   // Initialize practice session
   useEffect(() => {
     const count = config?.count || 10;
@@ -42,7 +73,9 @@ export default function Practice() {
     const subject = config?.subjects?.[0];
 
     let questions: Question[];
-    if (topic) {
+    if (config?.customQuestions && config.customQuestions.length > 0) {
+      questions = config.customQuestions;
+    } else if (topic) {
       const topicQuestions = getQuestionsByTopic(topic);
       // Shuffle
       const shuffled = [...topicQuestions].sort(() => Math.random() - 0.5);
@@ -99,6 +132,11 @@ export default function Practice() {
     const answer = state.answers[questionId];
     if (answer?.isRevealed) return; // Already revealed
 
+    // Mobile haptic feedback for option select
+    if (navigator.vibrate) {
+      navigator.vibrate(30); // light tap
+    }
+
     setState(prev => {
       if (!prev) return prev;
       return {
@@ -127,6 +165,11 @@ export default function Practice() {
 
     // Record attempt
     recordQuestionAttempt(q.id, q.subject, q.topic, isCorrect, timeSpent);
+
+    // Haptic feedback for result
+    if (navigator.vibrate) {
+      navigator.vibrate(isCorrect ? [30, 50, 30] : [80, 50, 80]);
+    }
 
     // Track mistakes
     if (!isCorrect) {
@@ -383,7 +426,12 @@ export default function Practice() {
         />
       </div>
 
-      <div className="question-container">
+      <div 
+        className="question-container"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        style={{ touchAction: 'pan-y' }}
+      >
         {/* Encouragement */}
         {encouragement && isCorrect && (
           <div style={{

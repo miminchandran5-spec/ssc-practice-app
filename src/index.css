@@ -124,6 +124,39 @@
   --header-height: 64px;
 }
 
+/* ---------- Dark Mode (Automatic) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #020617;
+    --bg-tertiary: #1e293b;
+    --bg-quaternary: #334155;
+
+    --surface-card: #1e293b;
+    --surface-elevated: #334155;
+    --surface-overlay: rgba(0, 0, 0, 0.7);
+    --surface-hover: #334155;
+
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-tertiary: #94a3b8;
+    --text-inverse: #0f172a;
+    
+    --border-light: #334155;
+    --border-default: #475569;
+
+    --primary-50: #1e1b4b;
+    --primary-100: #312e81;
+    --primary-200: #3730a3;
+    --primary-300: #4338ca;
+    
+    --accent-amber-light: #78350f;
+    --accent-green-light: #064e3b;
+    --accent-red-light: #7f1d1d;
+    --accent-blue-light: #1e3a8a;
+  }
+}
+
 /* ---------- Base Reset ---------- */
 *,
 *::before,
@@ -139,6 +172,9 @@ html {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -247,6 +283,7 @@ input, select, textarea {
   outline: none;
   position: relative;
   overflow: hidden;
+  min-height: 44px; /* Touch target size */
 }
 
 .btn:focus-visible {
@@ -398,14 +435,16 @@ input, select, textarea {
 /* ---------- Input System ---------- */
 .input {
   width: 100%;
-  padding: 10px 14px;
-  font-size: var(--text-base);
+  padding: 14px 16px;
+  font-size: 16px; /* 16px prevents automatic zoom on Android/iOS */
   color: var(--text-primary);
   background: var(--bg-primary);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   transition: all var(--transition-fast);
   outline: none;
+  appearance: none; /* Native look */
+  -webkit-appearance: none;
 }
 
 .input:focus {
@@ -833,6 +872,7 @@ input, select, textarea {
   margin-bottom: var(--space-3);
   font-size: var(--text-base);
   line-height: var(--leading-relaxed);
+  min-height: 56px; /* Optimized touch target for mobile */
 }
 
 .option-item:hover:not(.option-disabled) {
@@ -1097,39 +1137,51 @@ input, select, textarea {
   border-bottom-color: var(--primary-600);
 }
 
-/* ---------- Bottom Nav (Mobile) ---------- */
+/* ---------- Bottom Nav (Mobile - ColorOS/RealmeUI Style) ---------- */
 .bottom-nav {
   display: none;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--bg-primary);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--border-light);
-  padding: var(--space-2) 0 calc(var(--space-2) + env(safe-area-inset-bottom));
+  padding: 8px 0 calc(12px + env(safe-area-inset-bottom));
   z-index: var(--z-sticky);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.03);
+}
+
+@media (prefers-color-scheme: dark) {
+  .bottom-nav {
+    background: rgba(15, 23, 42, 0.85);
+  }
 }
 
 .bottom-nav-items {
   display: flex;
   justify-content: space-around;
   align-items: center;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 .bottom-nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: var(--space-1) var(--space-3);
+  gap: 4px;
+  padding: 8px 12px;
   background: none;
   border: none;
   color: var(--text-tertiary);
-  font-size: 10px;
-  font-weight: var(--weight-medium);
+  font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
-  transition: color var(--transition-fast);
+  transition: all var(--transition-base);
   text-decoration: none;
+  border-radius: 16px;
 }
 
 .bottom-nav-item.active {
@@ -1137,7 +1189,12 @@ input, select, textarea {
 }
 
 .bottom-nav-item .nav-icon {
-  font-size: 20px;
+  font-size: 22px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bottom-nav-item.active .nav-icon {
+  transform: translateY(-2px) scale(1.1);
 }
 
 /* ---------- Chart Bar (Simple CSS chart) ---------- */
@@ -1203,6 +1260,7 @@ input, select, textarea {
 
   .container {
     padding: 0 var(--space-4);
+    overflow-x: hidden;
   }
 
   .question-text {
@@ -1212,9 +1270,21 @@ input, select, textarea {
   .hide-mobile {
     display: none !important;
   }
+
+  /* Optimize modal and large cards for narrow phones */
+  .card {
+    padding: var(--space-4);
+  }
+
+  /* Make generated list scroll smoothly on mobile */
+  .ai-scroll-container {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
 }
 
 @media (max-width: 480px) {
+  .grid-2 { grid-template-columns: 1fr; }
   .grid-3 { grid-template-columns: 1fr; }
   .grid-4 { grid-template-columns: 1fr; }
 

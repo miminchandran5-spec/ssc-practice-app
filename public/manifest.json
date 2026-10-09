@@ -1,0 +1,17 @@
+{
+  "name": "PrepMaster - SSC Prep",
+  "short_name": "PrepMaster",
+  "description": "Your personalized SSC exam preparation companion.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

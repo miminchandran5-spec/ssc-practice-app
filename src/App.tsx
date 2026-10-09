@@ -1,6 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation, Link } from 'react-router-dom';
-import { isOnboardingComplete } from './store';
+import CinematicIntro from './components/CinematicIntro';
+import { isOnboardingComplete, clearAllData } from './store';
 
 // Lazy load pages for performance
 const Welcome = lazy(() => import('./pages/Welcome'));
@@ -16,6 +17,7 @@ const ProgressPage = lazy(() => import('./pages/ProgressPage'));
 const Bookmarks = lazy(() => import('./pages/Bookmarks'));
 const MistakeVault = lazy(() => import('./pages/MistakeVault'));
 const Search = lazy(() => import('./pages/Search'));
+const AiGenerator = lazy(() => import('./pages/AiGenerator'));
 
 // Loading fallback
 function LoadingScreen() {
@@ -61,9 +63,9 @@ function Header() {
           {[
             { path: '/dashboard', label: 'Home', icon: '🏠' },
             { path: '/subjects', label: 'Subjects', icon: '📚' },
+            { path: '/ai-generator', label: 'AI Gen', icon: '✨' },
             { path: '/test-center', label: 'Tests', icon: '📝' },
             { path: '/progress', label: 'Progress', icon: '📊' },
-            { path: '/mistakes', label: 'Mistakes', icon: '🔄' },
             { path: '/bookmarks', label: 'Bookmarks', icon: '🔖' },
           ].map(item => (
             <Link
@@ -80,13 +82,29 @@ function Header() {
           ))}
         </nav>
 
-        <button
-          className="btn btn-ghost btn-icon"
-          onClick={() => navigate('/search')}
-          aria-label="Search"
-        >
-          🔍
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            className="btn btn-ghost btn-icon"
+            onClick={() => navigate('/search')}
+            aria-label="Search"
+          >
+            🔍
+          </button>
+          
+          <button
+            className="btn btn-ghost btn-icon"
+            onClick={() => {
+              if (window.confirm('Are you sure you want to logout? This will reset your profile and progress on this device.')) {
+                clearAllData();
+                window.location.href = '/';
+              }
+            }}
+            aria-label="Logout"
+            title="Log Out"
+          >
+            🚪
+          </button>
+        </div>
       </div>
     </header>
   );
@@ -105,9 +123,9 @@ function BottomNav() {
   const items = [
     { path: '/dashboard', label: 'Home', icon: '🏠' },
     { path: '/subjects', label: 'Subjects', icon: '📚' },
+    { path: '/ai-generator', label: 'AI Gen', icon: '✨' },
     { path: '/test-center', label: 'Tests', icon: '📝' },
     { path: '/progress', label: 'Progress', icon: '📊' },
-    { path: '/mistakes', label: 'Mistakes', icon: '🔄' },
   ];
 
   return (
@@ -128,13 +146,25 @@ function BottomNav() {
   );
 }
 
+let introPlayed = false;
+
 export default function App() {
   const [ready, setReady] = useState(false);
+  const [showCinematic, setShowCinematic] = useState(!introPlayed);
   const location = useLocation(); // Force re-render on route change
 
   useEffect(() => {
     setReady(true);
   }, []);
+
+  if (showCinematic) {
+    return (
+      <CinematicIntro onComplete={() => {
+        introPlayed = true;
+        setShowCinematic(false);
+      }} />
+    );
+  }
 
   if (!ready) return <LoadingScreen />;
 
@@ -160,6 +190,7 @@ export default function App() {
             <Route path="/bookmarks" element={onboarded ? <Bookmarks /> : <Navigate to="/" replace />} />
             <Route path="/mistakes" element={onboarded ? <MistakeVault /> : <Navigate to="/" replace />} />
             <Route path="/search" element={onboarded ? <Search /> : <Navigate to="/" replace />} />
+            <Route path="/ai-generator" element={onboarded ? <AiGenerator /> : <Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
