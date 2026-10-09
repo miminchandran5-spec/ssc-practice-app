@@ -71,7 +71,7 @@ Output MUST be a valid JSON array containing exactly ${count} objects following 
   ],
   "correctAnswer": "a",
   "explanation": "Detailed explanation of why the answer is correct.",
-  "sourceType": "ai_generated",
+  "sourceType": "pattern_inspired",
   "sourceName": "AI Assistant"
 }
 
@@ -122,7 +122,7 @@ Do NOT wrap the output in markdown code blocks like \`\`\`json. Return ONLY the 
         ],
         correctAnswer: q.correctAnswer || 'a',
         explanation: q.explanation || 'No explanation provided.',
-        sourceType: 'ai_generated',
+        sourceType: 'pattern_inspired',
         sourceName: 'AI Gen',
         exam: 'general',
         questionType: 'mcq',
